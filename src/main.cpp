@@ -10,9 +10,7 @@
 #include "matrixStack.h"
 #include "item.h"
 #include "world.h"
-#include "SOM.h"
 #include "camera.h"
-#include "RAWmodel.h"
 #include "Drawmodel.h"
 #include "textureMap.h"
 
