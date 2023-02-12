@@ -7,8 +7,9 @@
 #include <omp.h>
 
 #include "BounderVoxel.h"
-#include "SOM.h"
 #include "logger.h"
+
+using namespace std;
 
 void createTexture();
 void createdepthTexture();

@@ -21,8 +21,6 @@ target_sources(SOM PRIVATE
     "src/main.cpp"
     "src/world.cpp"
     "src/matrixStack.cpp"
-    "src/SOM.cpp"
-    "src/RAWmodel.cpp"
     "src/Drawmodel.cpp"
     "src/stb_image.cpp"
     "src/textureMap.cpp"

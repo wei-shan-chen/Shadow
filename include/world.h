@@ -9,7 +9,6 @@
 #include <ctime> 
 #include <glm/glm.hpp>
 #include "Vertex.h"
-#include "SOM.h"
 #include "BounderVoxel.h"
 
 struct World {
