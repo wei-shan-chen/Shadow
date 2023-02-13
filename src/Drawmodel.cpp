@@ -68,18 +68,6 @@ void Shader_init(int n, bool settex){
         }    
     }
 }   
-void debug(){
-    glm::vec4 posLightSpace = glm::vec4(2.0,0.0,0.0,1.0);
-    posLightSpace = lightSpaceMatrix.Top()*posLightSpace;
-    cout << "posLightSpace: " ;
-    for(int i = 0; i < 4; i++){
-        cout << posLightSpace[i] << ", ";
-    }
-    cout << "\n";
-
-
-
-}
 void ViewProjection_Create(glm::vec3 position, glm::mat4 viewMatrix, float zoom, int n){
     view.Save(viewMatrix);
     projection.Save(glm::perspective(glm::radians(zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f));
@@ -148,7 +136,6 @@ void Model_cube_create(Shader shader){
     model.Push();
     shader.setMat4("model", model.Top());
     shader.setBool("shader",false);
-    bindTexture(0,0);
     glBindVertexArray(cube.VAO);
     glDrawArrays(GL_TRIANGLES, 0, world.cube.size());
     // log_debug("%u", world.cube.size());
