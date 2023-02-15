@@ -3,6 +3,8 @@
 
 ### 使用者手冊
 
+| 按鈕 | 效果 |
+| ------ | ------ |
 | H,N | light move in y-axis direction |
 | B,M | light move in x-axis direction |
 | G,V | light move in z-axis direction |
