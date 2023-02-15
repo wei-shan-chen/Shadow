@@ -18,6 +18,7 @@ struct World {
     std::vector<Vertex> tri;
     std::vector<Vertex> cube;
     std::vector<Vertex> lightcube;
+    std::vector<Vertex> tetrahedron;
 };
 
 void create_world();

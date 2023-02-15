@@ -95,9 +95,9 @@ int main()
 		ViewProjection_Create(camera.Position, camera.GetViewMatrix(), camera.Zoom, 0);
 		ourShader_model();
 		//depthdebug shader
-		Shader_init(3, false);
-		ViewProjection_Create(camera.Position, camera.GetViewMatrix(), camera.Zoom, 3);
-		depthdebug_model();
+		// Shader_init(3, false);
+		// ViewProjection_Create(camera.Position, camera.GetViewMatrix(), camera.Zoom, 3);
+		// depthdebug_model();
 		//light shader
 		Shader_init(1, false);
 		ViewProjection_Create(camera.Position, camera.GetViewMatrix(), camera.Zoom, 1);

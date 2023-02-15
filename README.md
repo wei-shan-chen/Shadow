@@ -1,6 +1,12 @@
 # Shadow
 *參考learnOpenGL*
 
+### 使用者手冊
+
+| H,N | light move in y-axis direction |
+| B,M | light move in x-axis direction |
+| G,V | light move in z-axis direction |
+
 ### 實作
 關於陰影失真的部分我是這樣做的
 ```cpp

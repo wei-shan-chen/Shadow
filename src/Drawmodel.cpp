@@ -17,7 +17,6 @@ Item cube;
 Item lightcube;
 Item ground;
 
-// glm::vec3 lightPos = glm::vec3(-2.0,4.0,-1.0);
 glm::vec3 lightPos = glm::vec3(5.0,5.0,5.0);
 float near_plane = 0.1f, far_plane = 1000.0f;
 
@@ -31,7 +30,6 @@ void ourShader_model();
 void depthShader_model();
 void depthdebug_model();
 
-void debug();
 void Shader_Create()
 {
     create_world();
@@ -59,7 +57,6 @@ void Shader_init(int n, bool settex){
         depthShader.use(); 
         if(settex){
             depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix.Top());
-            // debug();
         }
     }else if(n == 3){
         depthdebug.use();
@@ -85,9 +82,7 @@ void ViewProjection_Create(glm::vec3 position, glm::mat4 viewMatrix, float zoom,
         lightProjection.Save(glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane));
         lightView.Save(glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0)));
         lightSpaceMatrix.Save(lightProjection.Top() * lightView.Top());
-
-
-        
+  
     }else if(n == 3){
         depthdebug.setFloat("near_plane", near_plane);
         depthdebug.setFloat("far_plane", far_plane);
@@ -96,8 +91,8 @@ void ViewProjection_Create(glm::vec3 position, glm::mat4 viewMatrix, float zoom,
 void ourShader_model(){
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    bindTexture(0,0);
-    bindTexture(1,1);
+    bindTexture(0,0);//texture
+    bindTexture(1,1);//depthtexture
     Model_Floor_Create(ourShader);
     Model_cube_create(ourShader);
 }
@@ -109,7 +104,6 @@ void depthShader_model(){
     glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
         bindTexture(0,0);
-        // Model_Floor_Create(depthShader);
         Model_cube_create(depthShader);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -134,14 +128,21 @@ void Model_Floor_Create(Shader shader){
 }
 void Model_cube_create(Shader shader){
     model.Push();
+    // model.Save(glm::scale(model.Top(), glm::vec3( 2.0f, 1.0f, 2.0f)));
+    // model.Save(glm::translate(model.Top(), glm::vec3(-5.5f, 0.0f, -0.5)));
     shader.setMat4("model", model.Top());
     shader.setBool("shader",false);
     glBindVertexArray(cube.VAO);
     glDrawArrays(GL_TRIANGLES, 0, world.cube.size());
-    // log_debug("%u", world.cube.size());
-
-    
     model.Pop();
+    // model.Push();
+    // // model.Save(glm::scale(model.Top(), glm::vec3( 2.0f, 1.0f, 2.0f)));
+    // model.Save(glm::translate(model.Top(), glm::vec3(-1.0f, 0.0f, -0.5)));
+    // shader.setMat4("model", model.Top());
+    // shader.setBool("shader",false);
+    // glBindVertexArray(cube.VAO);
+    // glDrawArrays(GL_TRIANGLES, 0, world.cube.size());
+    // model.Pop();
 }
 void Model_lightCube_create(Shader shader){
     model.Push();
@@ -151,7 +152,6 @@ void Model_lightCube_create(Shader shader){
     glBindVertexArray(lightcube.VAO);
     glDrawArrays(GL_TRIANGLES, 0, world.lightcube.size());
     model.Pop();
-    // log_debug("%ld", lightcube.VAO);
 }
 void Model_del(){
     cube.Item_del();
