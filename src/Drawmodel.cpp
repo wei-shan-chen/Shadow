@@ -16,15 +16,19 @@ Shader depthdebug;
 Item cube;
 Item lightcube;
 Item ground;
+Item voxel;
+
+RAWmodel rawmodel;
 
 glm::vec3 lightPos = glm::vec3(5.0,5.0,5.0);
 float near_plane = 0.1f, far_plane = 1000.0f;
+int numVoxelFace = 0;
 
 void Shader_Create();
 void Shader_init(int n, bool settex);
 void ViewProjection_Create(glm::vec3 position, glm::mat4 viewMatrix, float zoom, int n);
 void Model_Floor_Create(Shader shader);
-void Model_cube_create(Shader shader);
+void Model_create(Shader shader);
 void Model_lightCube_create(Shader shader);
 void ourShader_model();
 void depthShader_model();
@@ -32,7 +36,9 @@ void depthdebug_model();
 
 void Shader_Create()
 {
-    create_world();
+    rawmodel.LoadFile("raw/ball21.inf", "raw/ball21.raw");
+    create_world(rawmodel.bounderVoxelData, rawmodel.bounderNum,&numVoxelFace);
+
     ourShader = Shader("shader/shader.vs", "shader/shader.fs");
     lightShader = Shader("shader/lightShader.vs", "shader/lightShader.fs");
     depthShader = Shader("shader/depthShader.vs", "shader/depthShader.fs");
@@ -41,7 +47,7 @@ void Shader_Create()
     cube = Item(world.cube);
     ground = Item((world.square));
     lightcube = Item(world.lightcube);
-
+    voxel = Item(world.voxel);
 }
 void Shader_init(int n, bool settex){
     if(n == 0){
@@ -94,7 +100,7 @@ void ourShader_model(){
     bindTexture(0,0);//texture
     bindTexture(1,1);//depthtexture
     Model_Floor_Create(ourShader);
-    Model_cube_create(ourShader);
+    Model_create(ourShader);
 }
 void lightShader_model(){
     Model_lightCube_create(lightShader);
@@ -104,7 +110,7 @@ void depthShader_model(){
     glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
         bindTexture(0,0);
-        Model_cube_create(depthShader);
+        Model_create(depthShader);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 void depthdebug_model(){
@@ -126,23 +132,23 @@ void Model_Floor_Create(Shader shader){
     // log_debug("%ld", ground.VAO);
 
 }
-void Model_cube_create(Shader shader){
+void Model_create(Shader shader){
     model.Push();
-    // model.Save(glm::scale(model.Top(), glm::vec3( 2.0f, 1.0f, 2.0f)));
-    // model.Save(glm::translate(model.Top(), glm::vec3(-5.5f, 0.0f, -0.5)));
+    model.Save(glm::scale(model.Top(), glm::vec3( 0.05f, 0.05f, 0.05f)));
+    shader.setMat4("model", model.Top());
+    shader.setBool("shader",false);
+    glBindVertexArray(voxel.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, world.voxel.size());
+    model.Pop();
+    
+    model.Push();
+    model.Save(glm::translate(model.Top(), glm::vec3(-10.5f, 0.0f, -0.5)));
     shader.setMat4("model", model.Top());
     shader.setBool("shader",false);
     glBindVertexArray(cube.VAO);
     glDrawArrays(GL_TRIANGLES, 0, world.cube.size());
     model.Pop();
-    // model.Push();
-    // // model.Save(glm::scale(model.Top(), glm::vec3( 2.0f, 1.0f, 2.0f)));
-    // model.Save(glm::translate(model.Top(), glm::vec3(-1.0f, 0.0f, -0.5)));
-    // shader.setMat4("model", model.Top());
-    // shader.setBool("shader",false);
-    // glBindVertexArray(cube.VAO);
-    // glDrawArrays(GL_TRIANGLES, 0, world.cube.size());
-    // model.Pop();
+
 }
 void Model_lightCube_create(Shader shader){
     model.Push();

@@ -1,0 +1,12 @@
+raw-file=stanford_bunny.raw
+resolution=401x326x426
+sample-type=unsigned char
+voxel-size=0.020000:0.020000:0.020000
+endian=little
+Min=-4.000000:-2.500000:-0.500000
+Max=4.000000:4.000000:8.000000
+AIR=0
+SKIN6=255
+SKIN18=254
+SKIN26=253
+MODEL=252

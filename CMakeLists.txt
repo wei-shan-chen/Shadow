@@ -25,6 +25,7 @@ target_sources(SOM PRIVATE
     "src/stb_image.cpp"
     "src/textureMap.cpp"
     "src/logger.c"
+    "src/RAWmodel.cpp"
 )
 target_sources(glad PRIVATE
     "ext/glad/src/glad.c"

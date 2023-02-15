@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "RAWmodel.h"
 #include "matrixStack.h"
 #include "shader.h"
 #include "textureMap.h"

@@ -1,0 +1,12 @@
+raw-file=utah_teapot.raw
+resolution=476x301x238
+sample-type=unsigned char
+voxel-size=0.040000:0.040000:0.040000
+endian=little
+Min=-9.000000:-6.000000:-0.500000
+Max=10.000000:6.000000:9.000000
+AIR=0
+SKIN6=255
+SKIN18=254
+SKIN26=253
+MODEL=252
