@@ -16,8 +16,8 @@ void createdepthTexture();
 void bindTexture(int act, int bind);
 
 extern unsigned int texture;
-extern unsigned int depthtex;
+extern unsigned int depthCubemap;
 extern unsigned int depthFBO;
 extern const unsigned int SHADOW_WIDTH, SHADOW_HEIGHT;
-// extern 
+
 #endif

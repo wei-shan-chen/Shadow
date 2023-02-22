@@ -12,21 +12,19 @@
 #include "Item.h"
 #include "world.h"
 #include "logger.h"
+#include "camera.h"
 
 void Shader_Create();
 void Shader_init(int n, bool settex);
-void ViewProjection_Create(glm::vec3 position, glm::mat4 viewMatrix, float zoom, int n);
+void ViewProjection_Create(int n);
 void ourShader_model();
 void depthShader_model();
-void depthdebug_model();
 void lightShader_model();
-// void Model_Floor_Create(Shader shader);
-// void Model_cube_create(Shader shader);
-// void Model_lightCube_create(Shader shader);
 void Model_del();
 
-
+extern Camera camera;
 extern glm::vec3 lightPos;
 extern const unsigned int SCR_WIDTH, SCR_HEIGHT;
+extern float rate;
 
 #endif

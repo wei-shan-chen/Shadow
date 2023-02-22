@@ -54,7 +54,6 @@ public:
         // this->EBO = model.EBO;
     }
     Item& operator= (const Item& model){
-
         
         unsigned int newVAO;
 

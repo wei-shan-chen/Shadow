@@ -1,48 +1,55 @@
 #include "Drawmodel.h"
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 800, SCR_HEIGHT = 600;
+glm::vec3 lightPos = glm::vec3(50.0,50.0,50.0);
+Camera camera(glm::vec3(0.0f, 5.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+float rate;
 
 MatrixStack model;
 MatrixStack view;
 MatrixStack projection;
-MatrixStack lightSpaceMatrix;
+std::vector<glm::mat4> shadowTransforms;
 
 Shader ourShader;
 Shader lightShader;
 Shader depthShader;
-Shader depthdebug;
 
 Item cube;
 Item lightcube;
 Item ground;
 Item voxel;
 
-RAWmodel rawmodel;
-
-glm::vec3 lightPos = glm::vec3(5.0,5.0,5.0);
-float near_plane = 0.1f, far_plane = 1000.0f;
-int numVoxelFace = 0;
+float near_plane = 0.01f, far_plane = 10000000.0f;
 
 void Shader_Create();
 void Shader_init(int n, bool settex);
-void ViewProjection_Create(glm::vec3 position, glm::mat4 viewMatrix, float zoom, int n);
+void ViewProjection_Create(int n);
 void Model_Floor_Create(Shader shader);
 void Model_create(Shader shader);
 void Model_lightCube_create(Shader shader);
 void ourShader_model();
 void depthShader_model();
-void depthdebug_model();
 
 void Shader_Create()
 {
-    rawmodel.LoadFile("raw/ball21.inf", "raw/ball21.raw");
-    create_world(rawmodel.bounderVoxelData, rawmodel.bounderNum,&numVoxelFace);
+    RAWmodel rawmodel;
+
+    rawmodel.LoadFile("raw/ball67.inf", "raw/ball67.raw");
+    create_world(rawmodel.bounderVoxelData, rawmodel.bounderNum);
+
+    // modify camera
+    float x = rawmodel.infdata.resolution[0];
+    float y = rawmodel.infdata.resolution[2];
+    float z = rawmodel.infdata.resolution[1];
+    rate = max(max(x,y),z) / 2.0;
+    camera.modifyPositionAndmoveSpeed(glm::vec3(x / -2.0, y / 2.0, z * 4.0), rate);
+
+    // modify light
+    lightPos = glm::vec3(x, y * 1.3, z * 2);
 
     ourShader = Shader("shader/shader.vs", "shader/shader.fs");
     lightShader = Shader("shader/lightShader.vs", "shader/lightShader.fs");
-    depthShader = Shader("shader/depthShader.vs", "shader/depthShader.fs");
-    depthdebug = Shader("shader/depthdebug.vs", "shader/depthdebug.fs");
+    depthShader = Shader("shader/depthShader.vs", "shader/depthShader.fs", "shader/depthShader.gs");
 
     cube = Item(world.cube);
     ground = Item((world.square));
@@ -55,43 +62,45 @@ void Shader_init(int n, bool settex){
         if(settex){
             ourShader.setInt("texturemap", 0);
             ourShader.setInt("shadowMap", 1);
+            ourShader.setFloat("bias", 1.0);
         }
-        
     }else if(n == 1){
         lightShader.use();
     }else if(n == 2){
         depthShader.use(); 
         if(settex){
-            depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix.Top());
+            for (unsigned int i = 0; i < 6; ++i)
+                depthShader.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+            depthShader.setFloat("far_plane", far_plane);
+            depthShader.setVec3("lightPos", lightPos);
         }
-    }else if(n == 3){
-        depthdebug.use();
-        if(settex){
-            depthdebug.setInt("depthMap", 0);
-        }    
     }
 }   
-void ViewProjection_Create(glm::vec3 position, glm::mat4 viewMatrix, float zoom, int n){
-    view.Save(viewMatrix);
-    projection.Save(glm::perspective(glm::radians(zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f));
+void ViewProjection_Create(int n){
+    
     if(n == 0){
+        view.Save(camera.GetViewMatrix());
+        projection.Save(glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, near_plane, far_plane));
         ourShader.setMat4("view", view.Top());
         ourShader.setMat4("projection", projection.Top());
-        ourShader.setVec3("viewPos", position);
+        ourShader.setVec3("viewPos", camera.Position);
         ourShader.setVec3("lightPos", lightPos);
-        ourShader.setMat4("lightSpaceMatrix", lightSpaceMatrix.Top());
+        ourShader.setFloat("far_plane", far_plane);
     }else if(n == 1){
         lightShader.setMat4("view", view.Top());
         lightShader.setMat4("projection", projection.Top());
     }else if(n == 2){
-        MatrixStack lightProjection, lightView;
-        lightProjection.Save(glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane));
-        lightView.Save(glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0)));
-        lightSpaceMatrix.Save(lightProjection.Top() * lightView.Top());
+        MatrixStack shadowProj;
+        shadowProj.Save(glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane));
+        
+        shadowTransforms.clear();
+        shadowTransforms.push_back(shadowProj.Top() * glm::lookAt(lightPos, lightPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+        shadowTransforms.push_back(shadowProj.Top() * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+        shadowTransforms.push_back(shadowProj.Top() * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+        shadowTransforms.push_back(shadowProj.Top() * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
+        shadowTransforms.push_back(shadowProj.Top() * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+        shadowTransforms.push_back(shadowProj.Top() * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
   
-    }else if(n == 3){
-        depthdebug.setFloat("near_plane", near_plane);
-        depthdebug.setFloat("far_plane", far_plane);
     }
 }
 void ourShader_model(){
@@ -113,16 +122,11 @@ void depthShader_model(){
         Model_create(depthShader);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-void depthdebug_model(){
-    
-    bindTexture(0,1);
-    // Model_Floor_Create(depthdebug);
-    // Model_cube_create(depthdebug);
-}
+
 
 void Model_Floor_Create(Shader shader){
     model.Push();
-    model.Save(glm::scale(model.Top(), glm::vec3( 2000.0f, 1.0f, 2000.0f)));
+    model.Save(glm::scale(model.Top(), glm::vec3( 20000.0f, 1.0f, 20000.0f)));
     model.Save(glm::translate(model.Top(), glm::vec3(-0.5f, 0.0f, -0.5)));
     shader.setMat4("model", model.Top());
     shader.setBool("shader",true);
@@ -132,22 +136,21 @@ void Model_Floor_Create(Shader shader){
     // log_debug("%ld", ground.VAO);
 
 }
-void Model_create(Shader shader){
+void Model_create(Shader shader){;
     model.Push();
-    model.Save(glm::scale(model.Top(), glm::vec3( 0.05f, 0.05f, 0.05f)));
+    // model.Save(glm::scale(model.Top(), glm::vec3( 0.05f, 0.05f, 0.05f)));
     shader.setMat4("model", model.Top());
     shader.setBool("shader",false);
     glBindVertexArray(voxel.VAO);
     glDrawArrays(GL_TRIANGLES, 0, world.voxel.size());
     model.Pop();
     
-    model.Push();
-    model.Save(glm::translate(model.Top(), glm::vec3(-10.5f, 0.0f, -0.5)));
-    shader.setMat4("model", model.Top());
-    shader.setBool("shader",false);
-    glBindVertexArray(cube.VAO);
-    glDrawArrays(GL_TRIANGLES, 0, world.cube.size());
-    model.Pop();
+    // model.Push();
+    // shader.setMat4("model", model.Top());
+    // shader.setBool("shader",false);
+    // glBindVertexArray(cube.VAO);
+    // glDrawArrays(GL_TRIANGLES, 0, world.cube.size());
+    // model.Pop();
 
 }
 void Model_lightCube_create(Shader shader){
@@ -163,4 +166,5 @@ void Model_del(){
     cube.Item_del();
     ground.Item_del();
     lightcube.Item_del();
+    voxel.Item_del();
 }

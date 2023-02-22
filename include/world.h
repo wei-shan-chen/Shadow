@@ -22,7 +22,7 @@ struct World {
     std::vector<Vertex> voxel;
 };
 
-void create_world(std::vector<VoxData_b>  bounderVoxelData, int bounderNum,int* numVoxelFace);
+void create_world(std::vector<VoxData_b>  bounderVoxelData, int bounderNum);
 void destroy_world();
 extern struct World world;
 

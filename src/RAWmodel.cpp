@@ -12,12 +12,12 @@ RAWmodel::RAWmodel(){
 
 RAWmodel::~RAWmodel(){
     // free(bounderVoxelData);
-    for(int i = 0; i < infdata.resolution[0]; i++){
+    for(int i = 0; i < infdata.resolution[2]; i++){
         for(int j = 0; j < infdata.resolution[1]; j++){
             free(voxelData[i][j]);
         }
     }
-    for(int i = 0; i < infdata.resolution[0]; i++){
+    for(int i = 0; i < infdata.resolution[2]; i++){
         free(voxelData[i]);
     }
     free(voxelData);
@@ -202,9 +202,7 @@ void RAWmodel::SetVoxelData(){
                 else if(voxelData[i][j][k] == 255){
                     voxelData[i][j][k] = 6;
                     bounderVoxelData.push_back(VoxData_b{{j-(infdata.resolution[1]),i,k},{}});
-                    // bounderVoxelData[num].bounderVoxelLocate = {j-(infdata.resolution[1]),i,k};
                     setMaxbounder(j-(infdata.resolution[1]), i, k);
-                    // bounderVoxelData[num].bounderVoxelFaceAir[0] = 1;
                     SetbounderVoxelFaceAir(i,j,k, num);
                     num++;
                 }

@@ -3,53 +3,24 @@
 
 ### 使用者手冊
 
-| 按鈕 | 效果 |
+| 按鈕 | 光 效果 |
 | ------ | ------ |
 | H,N | light move in y-axis direction |
 | B,M | light move in x-axis direction |
 | G,V | light move in z-axis direction |
+| 按鈕 | 攝影機 效果 |
+| W,S | camera move in y-axis direction |
+| A,D | camera move in x-axis direction |
+| R,F | camera move in z-axis direction |
+| J.L | camera rotate along y-axis |
+| R,F | camera rotate along x-axis |
 
 ### 實作
-關於陰影失真的部分我是這樣做的
-```cpp
-//fragment shader
+- 可以自行輸入raw檔，並畫出來
+相機和燈光的移動速率及初始位址，根據raw檔模型的大小作出相對應的改變
 
-float ShadowCalculation(vec4 fragPosLightSpace)
-{
-    // perform perspective divide
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // transform to [0,1] range
-    projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-
-    vec3 normal = normalize(fs_in.Normal);
-    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
-    float bias = max(0.0002 * (1.0 - dot(normal, lightDir))/2.0, 0.0001);
-    // PCF
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for(int x = -1; x <= 1; ++x)
-    {
-        for(int y = -1; y <= 1; ++y)
-        {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
-            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
-        }    
-    }
-    shadow /= 9.0;
-    
-    // Keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
-    if(projCoords.z > 1.0)
-        shadow = 0.0;
-        
-    return shadow;
-}
-```
-針對bias的部分多除了2
+- 模型太大會出現shadow acne的問題，bias太大會導致模型太平滑
 
 ### 實作畫面
-
-![](./image/shadow.png)
+使用點光源
+![](./image/teaShadow.png)

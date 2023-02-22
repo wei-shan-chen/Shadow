@@ -28,7 +28,7 @@ void processInput(GLFWwindow *window);
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-Camera camera(glm::vec3(0.0f, 5.0f, 15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
 // model show
 bool show = true;
 bool showtex = true;
@@ -73,7 +73,6 @@ int main()
     createTexture();
 	createdepthTexture();	
 	Shader_init(0, true);
-	Shader_init(3, true);
 	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(window))
 	{
@@ -87,20 +86,16 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//depth shader
-		ViewProjection_Create(camera.Position, camera.GetViewMatrix(), camera.Zoom, 2);
+		ViewProjection_Create(2);
 		Shader_init(2, true);
 		depthShader_model();
 		//our shader
 		Shader_init(0, false);
-		ViewProjection_Create(camera.Position, camera.GetViewMatrix(), camera.Zoom, 0);
+		ViewProjection_Create(0);
 		ourShader_model();
-		//depthdebug shader
-		// Shader_init(3, false);
-		// ViewProjection_Create(camera.Position, camera.GetViewMatrix(), camera.Zoom, 3);
-		// depthdebug_model();
 		//light shader
 		Shader_init(1, false);
-		ViewProjection_Create(camera.Position, camera.GetViewMatrix(), camera.Zoom, 1);
+		ViewProjection_Create(1);
 		lightShader_model();
 
 		glfwSwapBuffers(window);
@@ -141,7 +136,7 @@ void processInput(GLFWwindow *window)
 		camera.ProcessKeyboard(YAWDOWN, deltaTime);
 
 	// light
-	float v = 3.0f*deltaTime;
+	float v = rate*deltaTime;
     if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
 		lightPos = lightPos+glm::vec3(0.0,v,0.0);
 	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)

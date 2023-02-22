@@ -46,6 +46,7 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    float rate;
 
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH)
@@ -74,15 +75,15 @@ public:
         return glm::lookAt(Position, Position + Front, Up);
     }
     // regive poision
-    void modifyPositionAndmoveSpeed(glm::vec3 position, float speed){
+    void modifyPositionAndmoveSpeed(glm::vec3 position, float Rate){
         Position = position;
-        MovementSpeed = speed;
+        rate = Rate;
     }
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
         float velocity_turn = MovementSpeed * 3.0 * deltaTime;
-        float velocity = MovementSpeed * deltaTime;
+        float velocity = MovementSpeed * rate * deltaTime;
         if (direction == FORWARD)
             Position += Front * velocity;
         if (direction == BACKWARD)
